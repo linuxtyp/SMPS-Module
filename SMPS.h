@@ -5,33 +5,58 @@
 #ifndef SMPS_h
 #define SMPS_h
 
-#include "Arduino.h"
+//#include "Arduino.h"
+
+#include <Wire.h>
+#include <iostream>
+#include <string>
+#include <cstdint>
+#include "Registers.h"
+#include "SMPS.h"
+//#include  <Arduino.h>
 
 class SMPS
 {
   public:
     SMPS();
-    void CurrentLimitEnable(int value); //Status Reg, OCP
+    void SetCurrentControl();
+    void CurrentLimitEnable(); //Status Reg, OCP
     void CurrentLimitDisable();
     void ClearCurrentFlag();
-    String Info() //Ues ReadCDC, Status Reg Status Flag
+    void SetCurrent(); //for current control
+    void SetCurrentLimit(float current); //for voltage control
+
+    void Info(); //Ues ReadCDC, Status Reg Status Flag
+
     void OutputEnable(); //Mode Register
     void OutputDisable();
+
     void UseExternalVCC();
     void UseInternalVCC();
-    void ShortCircuitEnable();
-    void ShortCircuitDisable();
-    void ClearShortFlag();//Status Reg, SCP Read
 
-    
-    
-    char I2CAddress = 0x74//0x75
+    void ShortCircuitProtectionEnable();
+    void ShortCircuitProtectionDisable();
+    void ClearShortFlag();//Status Reg, SCP Read
+    void SetVoltage(float voltage); //for voltage control
+    void SetVoltageLimit(float voltage); //for current control
+    void SetVoltageControl();
+
+
+
   private:
     char ReadCDC();
-
-    I2C_t myI2C(I2C_NUM_0);
-    int _pin;
+    bool ControlMode; //0 is voltage control, 1 is current control
+    //Registers regs;
+    float voltage;
+    float current;
 };
 
-#endif
 
+
+
+
+
+
+
+
+#endif
