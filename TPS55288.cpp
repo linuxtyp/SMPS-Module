@@ -137,15 +137,13 @@ void TPS55288::SetVoltage(float voltage)
 {
   if (!TPS55288::ControlMode)
   {
+    //saving the voltage in the library
     TPS55288::voltage = voltage;
-    /*Wire1.beginTransmission(TPS55288_Addr);
-    regs.(setBit("OE",false));
-    Wire1.write(regs.RegisterAddress("MODE"));
-    Wire1.write(regs.RegisterValue("MODE"));
-    Wire1.endTransmission();*/
-    // Determine the best feedback ratio and reference voltage
-    const float fbRatios[] = {0.2256, 0.1128, 0.0752, 0.0564};
-    const float maxRefVoltage = 1.2;  // Maximum reference voltage in V
+    // fb ratios from the datasheet
+    const float fbRatios[] = {0.2256, 0.1128, 0.0752, 0.0564}; 
+    // Maximum reference voltage in V
+    const float maxRefVoltage = 1.2;  
+
     float refVoltage;
     uint16_t refValue;
     uint8_t fbIndex = 0;
@@ -159,30 +157,44 @@ void TPS55288::SetVoltage(float voltage)
           break;
       }
     }
+    // Converting float to uint16_t
     refValue = static_cast<uint16_t>(refVoltage / fbRatios[fbIndex]);
+
+    // starting the i2c transmission
     Wire1.beginTransmission(TPS55288_Addr);
+    // sending register address and value for the lsb
     WriteI2CRegister("REF_LSB", refValue);
+    // sending register address and value for the msb
     WriteI2CRegister("REF_MSB", refValue>>8);
+
+    // send register address and value for the feedback ratio
     regs.setRegister("VOUT_FS", (RegisterValue("VOUT_FS")&0xFC) | (fbIndex & 0x03 ));
     Wire1.write(regs.RegisterAddress("VOUT_FS"));
     Wire1.write(regs.RegisterValue("VOUT_FS"));
+
+    // ending the i2c transmission
     Wire1.endTransmission();
   }
 }
 
 void TPS55288::SetVoltageControl()
 {
+  // setting the control mode to voltage control
+  // 0 = voltage control, 1= current control
   TPS55288::ControlMode = false;
 }
 
 void TPS55288::SetCurrentControl()
 {
+  // setting the control mode to current control
+  // 0 = voltage control, 1= current control
   TPS55288::ControlMode = true;
 }
 
 
 void TPS55288::WriteI2CRegister(std::string regName, uint8_t value)
 {
+  // a routine for rewriting a whole register with a integer
   regs.setRegister(regName, value & 0xFF);
   Wire1.write(regs.RegisterAddress(regName));
   Wire1.write(regs.RegisterValue(regName));
