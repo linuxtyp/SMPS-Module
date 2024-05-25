@@ -151,7 +151,7 @@ void TPS55288::SetVoltage(float voltage)
     // Select the appropriate feedback ratio
     for (int i = 0; i < 4; i++) 
     {
-      refVoltage = targetVoltage / fbRatios[i];
+      refVoltage = voltage / fbRatios[i];
       if (refVoltage <= maxRefVoltage) {
           fbIndex = i;
           break;
@@ -168,7 +168,7 @@ void TPS55288::SetVoltage(float voltage)
     WriteI2CRegister("REF_MSB", refValue>>8);
 
     // send register address and value for the feedback ratio
-    regs.setRegister("VOUT_FS", (RegisterValue("VOUT_FS")&0xFC) | (fbIndex & 0x03 ));
+    regs.setRegister("VOUT_FS", (regs.RegisterValue("VOUT_FS")&0xFC) | (fbIndex & 0x03 ));
     Wire1.write(regs.RegisterAddress("VOUT_FS"));
     Wire1.write(regs.RegisterValue("VOUT_FS"));
 
