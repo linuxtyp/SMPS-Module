@@ -9,6 +9,6 @@ class SMPS {
   public:
     void OutputEnable();
     void OutputDisable();
-}
+};
 
 #endif

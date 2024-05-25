@@ -4,11 +4,11 @@
 
 
 //SMPS smps;
-TPS55288 TPS55288;
+TPS55288 tps;
 void setup() {
   // put your setup code here, to run once:
   //smps.OutputDisable();
-  TPS55288.
+  tps.OutputDisable();
 }
 
 void loop() {
