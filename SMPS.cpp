@@ -1,16 +1,16 @@
 #include "SMPS.h"
 
 
-TPS tps();
+TPS55288 TPS55288();
 SMPS::SMPS(){
 
 }
 
 void SMPS::OutputEnable(){
-  tps.OutputEnable();
-  //TPS::OutputEnable();
+  TPS55288.OutputEnable();
+  //TPS55288::OutputEnable();
 }
 void SMPS::OutputDisable(){
-  tps.OutputDisable();
-  //TPS::OutputDisable();
+  TPS55288.OutputDisable();
+  //TPS55288::OutputDisable();
 }

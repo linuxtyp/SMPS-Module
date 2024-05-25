@@ -12,17 +12,17 @@ Stop Bit: 1
 */
 
 //#include "Arduino.h"
-#include "TPS.h"
+#include "TPS55288.h"
 
 #define I2C_SCL 13
 #define I2C_SDA 14
-#define TPS_Addr 0x74 //Default if I2CADDR Flag ture-> 0x75
+#define TPS55288_Addr 0x74 //Default if I2CADDR Flag ture-> 0x75
 
 
 
 
 Registers regs(8);
-TPS::TPS(){
+TPS55288::TPS55288(){
   Wire1.begin(I2C_SDA, I2C_SCL);
   //Serial.begin(115200);
   regs.setRegisterName(0,"REF_LSB");
@@ -67,8 +67,8 @@ TPS::TPS(){
   regs.setBit(3,7,false,"Reserved");
 
   regs.setRegisterName(4,"VOUT_FS");
-  regs.setBit(4,0,true,"INTFB");
-  regs.setBit(4,1,true,"INTFB");
+  regs.setBit(4,0,true,"INTFB0");
+  regs.setBit(4,1,true,"INTFB1");
   regs.setBit(4,2,false,"Reserved");
   regs.setBit(4,3,false,"Reserved");
   regs.setBit(4,4,false,"Reserved");
@@ -108,8 +108,8 @@ TPS::TPS(){
   OutputDisable();
 
 }
-void TPS::OutputEnable(){
-  Wire1.beginTransmission(TPS_Addr);
+void TPS55288::OutputEnable(){
+  Wire1.beginTransmission(TPS55288_Addr);
   regs.setBit("OE",true);
   Wire1.write(regs.RegisterAddress("MODE"));
   Wire1.write(regs.RegisterValue("MODE"));
@@ -117,8 +117,8 @@ void TPS::OutputEnable(){
   //Serial.println(regs.RegisterAddress("MODE"));
   //Serial.println(regs.RegisterValue("MODE"));
 }
-void TPS::OutputDisable(){
-  Wire1.beginTransmission(TPS_Addr);
+void TPS55288::OutputDisable(){
+  Wire1.beginTransmission(TPS55288_Addr);
   regs.setBit("OE",false);
   Wire1.write(regs.RegisterAddress("MODE"));
   Wire1.write(regs.RegisterValue("MODE"));
@@ -127,31 +127,63 @@ void TPS::OutputDisable(){
   //Serial.println(regs.RegisterValue("MODE"));
 }
 
-void TPS::Info(){
+void TPS55288::Info(){
   regs.printRegisters();
 }
 
 
 
-void TPS::SetVoltage(float voltage)
+void TPS55288::SetVoltage(float voltage)
 {
-  if (!TPS::ControlMode)
+  if (!TPS55288::ControlMode)
   {
-    TPS::voltage = voltage;
-    /*Wire1.beginTransmission(TPS_Addr);
+    TPS55288::voltage = voltage;
+    /*Wire1.beginTransmission(TPS55288_Addr);
     regs.(setBit("OE",false));
     Wire1.write(regs.RegisterAddress("MODE"));
     Wire1.write(regs.RegisterValue("MODE"));
     Wire1.endTransmission();*/
+    // Determine the best feedback ratio and reference voltage
+    const float fbRatios[] = {0.2256, 0.1128, 0.0752, 0.0564};
+    const float maxRefVoltage = 1.2;  // Maximum reference voltage in V
+    float refVoltage;
+    uint16_t refValue;
+    uint8_t fbIndex = 0;
+
+    // Select the appropriate feedback ratio
+    for (int i = 0; i < 4; i++) 
+    {
+      refVoltage = targetVoltage / fbRatios[i];
+      if (refVoltage <= maxRefVoltage) {
+          fbIndex = i;
+          break;
+      }
+    }
+    refValue = static_cast<uint16_t>(refVoltage / fbRatios[fbIndex]);
+    Wire1.beginTransmission(TPS55288_Addr);
+    WriteI2CRegister("REF_LSB", refValue);
+    WriteI2CRegister("REF_MSB", refValue>>8);
+    regs.setRegister("VOUT_FS", (RegisterValue("VOUT_FS")&0xFC) | (fbIndex & 0x03 ));
+    Wire1.write(regs.RegisterAddress("VOUT_FS"));
+    Wire1.write(regs.RegisterValue("VOUT_FS"));
+    Wire1.endTransmission();
   }
 }
 
-void TPS::SetVoltageControl()
+void TPS55288::SetVoltageControl()
 {
-  TPS::ControlMode = false;
+  TPS55288::ControlMode = false;
 }
 
-void TPS::SetCurrentControl()
+void TPS55288::SetCurrentControl()
 {
-  TPS::ControlMode = true;
+  TPS55288::ControlMode = true;
+}
+
+
+void TPS55288::WriteI2CRegister(std::string regName, uint8_t value)
+{
+  regs.setRegister(regName, value & 0xFF);
+  Wire1.write(regs.RegisterAddress(regName));
+  Wire1.write(regs.RegisterValue(regName));
 }

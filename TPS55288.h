@@ -2,8 +2,8 @@
 
 */
 
-#ifndef TPS_h
-#define TPS_h
+#ifndef TPS55288_h
+#define TPS55288_h
 
 //#include "Arduino.h"
 
@@ -12,13 +12,13 @@
 #include <string>
 #include <cstdint>
 #include "Registers.h"
-//#include "TPS.h"
+//#include "TPS55288.h"
 //#include  <Arduino.h>
 
-class TPS
+class TPS55288
 {
   public:
-    TPS();
+    TPS55288();
     void SetCurrentControl();
     void CurrentLimitEnable(); //Status Reg, OCP
     void CurrentLimitDisable();
@@ -49,6 +49,8 @@ class TPS
     //Registers regs;
     float voltage;
     float current;
+
+    void WriteI2CRegister(std::string regName, uint8_t value);
 };
 
 

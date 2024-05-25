@@ -1,7 +1,7 @@
 #ifndef SPMS_H
 #define SMPS_H
 
-#include "TPS.h"
+#include "TPS55288.h"
 
 
 

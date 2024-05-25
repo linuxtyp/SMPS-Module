@@ -32,6 +32,7 @@ public:
     // Function to print the state of all registers
     void printRegisters() const;
     void setRegister(int regIndex, char value);
+    void setRegister(std::string regName, char value);
     void setRegister(int regIndex, char value, std::string name);
     void setRegisterName(int regIndex, std::string name);
     bool State(std::string name);
