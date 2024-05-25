@@ -2,7 +2,7 @@
 
 ## References
 
-htTPS55288://github.com/natanaeljr/esp32-I2Cbus
+https://github.com/natanaeljr/esp32-I2Cbus
 
 
 ## Init
