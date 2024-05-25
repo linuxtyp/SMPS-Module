@@ -33,12 +33,18 @@ int Registers::RegisterValue(std::string name) {
         if (regArray[i].name == name) {
             return regArray[i].value;
         }
+        else {
+            std::cerr << "Invalid register name!" << std::endl;
+        }
     }   
 }
 int Registers::RegisterAddress(std::string name) {
     for (int i = 0; i < 8; ++i) {
         if (regArray[i].name == name) {
             return i;
+        }
+        else {
+            std::cerr << "Invalid register name!" << std::endl;
         }
     }
 }
@@ -54,23 +60,37 @@ void Registers::setBit(std::string bitName, bool state) {
         }
     }
 }
-void Registers::setRegister(int regIndex, char charValue) {
+void Registers::setRegister(int regIndex, char value) {
     if (regIndex >= 0 && regIndex < 8) {
-        regArray[regIndex].value = charValue;
+        regArray[regIndex].value = value;
         for (int i = 0; i < 8; ++i) {
-            regArray[regIndex].bits[i].state = (charValue >> i) & 1;
+            regArray[regIndex].bits[i].state = (value >> i) & 1;
         }
     } else {
         std::cerr << "Invalid register index!" << std::endl;
     }
 }
 
-void Registers::setRegister(int regIndex, char charValue, std::string name) {
+void Registers::setRegister(std::string regName, char value)
+{
+    for (int i = 0; i < 8; ++i) {
+        if (regArray[i].name == regName) {
+            regArray[i].value = value;
+            for (int j = 0; j < 8; ++j) {
+                regArray[i].bits[j].state = (value >> j) & 1;
+            }
+        } else {
+            std::cerr << "Invalid register name!" << std::endl;
+        }
+    }
+}
+
+void Registers::setRegister(int regIndex, char  value, std::string name) {
     if (regIndex >= 0 && regIndex < 8) {
-        regArray[regIndex].value = charValue;
+        regArray[regIndex].value = value;
         regArray[regIndex].name = name;
         for (int i = 0; i < 8; ++i) {
-            regArray[regIndex].bits[i].state = (charValue >> i) & 1;
+            regArray[regIndex].bits[i].state = (value >> i) & 1;
         }
     } else {
         std::cerr << "Invalid register index!" << std::endl;
