@@ -1,18 +1,41 @@
+#include <Wire.h>
 #include "TPS55288.h"
-//#include "SMPS.h"
-//s#include <HardwareSerial.h>
 
+// Definiere die I2C-Pins für den ESP32
+#define I2C_SCL 22
+#define I2C_SDA 21
+#define I2C_Baud 100000
+#define TPS55288_Addr 0x74
 
-//SMPS smps;
-TPS55288 tps;
+// Erstelle eine Instanz der TPS55288-Klasse
+TPS55288 tps(I2C_SDA, I2C_SCL, I2C_Baud);
+
 void setup() {
-  // put your setup code here, to run once:
-  //smps.OutputDisable();
-  tps.OutputDisable();
+  // Initialisiere die serielle Kommunikation zur Ausgabe
+  Serial.begin(115200);
+  
+  // Initialisiere die I2C-Kommunikation
+  //Wire1.begin(I2C_SDA, I2C_SCL);
+  
+  // Initialisiere das TPS55288-Modul
+  //tps = TPS55288(I2C_SDA, I2C_SCL);
+  
+  // Setze den Spannungsregelmodus
+  tps.SetVoltageControl();
+  
+  // Aktiviere den Ausgang
+  tps.OutputEnable();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  //smps.OutputDisable();
-  delay(200);
+  // Setze eine Testspannung, z.B. 3.3V
+  float testVoltage = 3.3;
+  tps.SetVoltage(testVoltage);
+  
+  // Ausgabe der eingestellten Spannung
+  Serial.print("Set Voltage: ");
+  Serial.println(testVoltage);
+  
+  // Eine kurze Verzögerung, um die Ausgabe zu stabilisieren
+  delay(1000);
 }

@@ -36,8 +36,8 @@ public:
     void setRegister(int regIndex, char value, std::string name);
     void setRegisterName(int regIndex, std::string name);
     bool State(std::string name);
-    int RegisterValue(std::string name);
-    int RegisterAddress(std::string name);
+    uint8_t RegisterValue(std::string name);
+    uint8_t RegisterAddress(std::string name);
 private:
     Register regArray[8]; // Array of 8 registers
 
