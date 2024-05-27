@@ -17,8 +17,16 @@
 
 class TPS55288
 {
+  protected:
+    int I2C_SDA;
+    int I2C_SCL;
+    int I2C_Baud;
+    bool ControlMode; //0 is voltage control, 1 is current control
+    float voltage;
+    float current;
+
   public:
-    TPS55288();
+    TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud);
     void SetCurrentControl();
     void CurrentLimitEnable(); //Status Reg, OCP
     void CurrentLimitDisable();
@@ -41,14 +49,10 @@ class TPS55288
     void SetVoltageLimit(float voltage); //for current control
     void SetVoltageControl();
 
-
+    
 
   private:
     char ReadCDC();
-    bool ControlMode; //0 is voltage control, 1 is current control
-    //Registers regs;
-    float voltage;
-    float current;
 
     void WriteI2CRegister(std::string regName, uint8_t value);
 };

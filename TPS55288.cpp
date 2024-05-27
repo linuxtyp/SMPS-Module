@@ -14,16 +14,18 @@ Stop Bit: 1
 //#include "Arduino.h"
 #include "TPS55288.h"
 
-#define I2C_SCL 13
-#define I2C_SDA 14
 #define TPS55288_Addr 0x74 //Default if I2CADDR Flag ture-> 0x75
 
 
 
 
 Registers regs(8);
-TPS55288::TPS55288(){
-  Wire1.begin(I2C_SDA, I2C_SCL);
+TPS55288::TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud){
+  TPS55288::I2C_SDA = I2C_SDA;
+  TPS55288::I2C_SCL = I2C_SCL;
+  TPS55288::I2C_Baud = I2C_Baud;
+  Wire1.begin(I2C_SDA, I2C_SCL, I2C_Baud);
+  std::cerr << "i2c online" << std::endl;
   //Serial.begin(115200);
   regs.setRegisterName(0,"REF_LSB");
   regs.setBit(0,0,false,"VREF");
@@ -106,23 +108,31 @@ TPS55288::TPS55288(){
   regs.setBit(7,6,false,"OCP");
   regs.setBit(7,7,false,"SCP");
   OutputDisable();
-
+  std::cerr << "Initialization successfull" << std::endl;
 }
 void TPS55288::OutputEnable(){
   Wire1.beginTransmission(TPS55288_Addr);
+  std::cerr << "starting transmission" << std::endl;
   regs.setBit("OE",true);
   Wire1.write(regs.RegisterAddress("MODE"));
+  std::cerr << "register address sent" << std::endl;
   Wire1.write(regs.RegisterValue("MODE"));
+  std::cerr << "register value sent" << std::endl;
   Wire1.endTransmission();
+  std::cerr << "ending transmission" << std::endl;
   //Serial.println(regs.RegisterAddress("MODE"));
   //Serial.println(regs.RegisterValue("MODE"));
 }
 void TPS55288::OutputDisable(){
   Wire1.beginTransmission(TPS55288_Addr);
+  std::cerr << "starting transmission" << std::endl;
   regs.setBit("OE",false);
   Wire1.write(regs.RegisterAddress("MODE"));
+  std::cerr << "register address sent" << std::endl;
   Wire1.write(regs.RegisterValue("MODE"));
+  std::cerr << "register value sent" << std::endl;
   Wire1.endTransmission();
+  std::cerr << "ending transmission" << std::endl;
   //Serial.println(regs.RegisterAddress("MODE"));
   //Serial.println(regs.RegisterValue("MODE"));
 }
@@ -195,7 +205,7 @@ void TPS55288::SetCurrentControl()
 void TPS55288::WriteI2CRegister(std::string regName, uint8_t value)
 {
   // a routine for rewriting a whole register with a integer
-  regs.setRegister(regName, value & 0xFF);
+  regs.setRegister(regName, (value & 0xFF));
   Wire1.write(regs.RegisterAddress(regName));
   Wire1.write(regs.RegisterValue(regName));
 }
