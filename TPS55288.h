@@ -24,6 +24,7 @@ class TPS55288
     bool ControlMode; //0 is voltage control, 1 is current control
     float voltage;
     float current;
+    bool logging;
 
   public:
     TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud);
@@ -48,13 +49,13 @@ class TPS55288
     void SetVoltage(float voltage); //for voltage control
     void SetVoltageLimit(float voltage); //for current control
     void SetVoltageControl();
-
-    
+    void setLog(bool state);
+    void setOutput(bool state);
 
   private:
     char ReadCDC();
-
     void WriteI2CRegister(std::string regName, uint8_t value);
+    void log(std::string logString);
 };
 
 

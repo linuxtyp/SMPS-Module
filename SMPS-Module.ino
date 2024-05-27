@@ -4,7 +4,7 @@
 // Definiere die I2C-Pins für den ESP32
 #define I2C_SCL 22
 #define I2C_SDA 21
-#define I2C_Baud 10000
+#define I2C_Baud 100000
 #define TPS55288_Addr 0x74
 
 // Erstelle eine Instanz der TPS55288-Klasse
