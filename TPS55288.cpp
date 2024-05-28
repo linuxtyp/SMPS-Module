@@ -191,12 +191,18 @@ void TPS55288::SetCurrentControl()
 }
 
 
-void TPS55288::WriteI2CRegister(std::string regName, uint8_t value)
+void TPS55288::WriteI2CRegister(std::string regName, uint8_t[] value)
 {
+  Wire1.beginTransmission(TPS55288_Addr);
   // a routine for rewriting a whole register with a integer
   regs.setRegister(regName, (value & 0xFF));
+  uint8_t regIndex = regs.
   Wire1.write(regs.RegisterAddress(regName));
-  Wire1.write(regs.RegisterValue(regName));
+  for (uint16_t i = 0; i < count; i++)
+  {
+    Wire1.write(regs.RegisterValue(regName));
+  }
+  Wire1.endTransmission();
 }
 
 void TPS55288::setLog(bool state)
