@@ -38,8 +38,11 @@ public:
     bool State(std::string name);
     uint8_t RegisterValue(std::string name);
     uint8_t RegisterAddress(std::string name);
-private:
+    uint8_t RegisterIndex(std::string name);
+
     Register regArray[8]; // Array of 8 registers
+private:
+    
 
     // Private function to update the value of a register based on its bits' states
     void updateRegisterValue(int regIndex);

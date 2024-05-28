@@ -24,6 +24,19 @@ TPS55288::TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud){
   TPS55288::I2C_SDA = I2C_SDA;
   TPS55288::I2C_SCL = I2C_SCL;
   TPS55288::I2C_Baud = I2C_Baud;
+
+  Debug::begin(LOG_LEVEL_DEBUG);
+  // Enable file logging and set log file retention period to 1 minute
+  Debug::enableFileLogging(true);
+  Debug::setLogFileRetentionPeriod(60000);
+
+  // Example log messages
+  Debug::info("System is starting up...");
+  Debug::debug("This is a debug message");
+  Debug::error("This is an error message");
+
+
+
   setLog(true);
   log("i2c online");
   //Serial.begin(115200);
@@ -154,25 +167,29 @@ void TPS55288::SetVoltage(float voltage)
     log("fbRatio: " + std::to_string(fbRatios[fbIndex]));
     log("Outputvoltage: " + std::to_string(refVoltage/fbRatios[fbIndex]));
     // starting the i2c transmission
-    Wire1.beginTransmission(TPS55288_Addr);
+    //Wire1.beginTransmission(TPS55288_Addr);
     // sending register address and value for the lsb
-    //WriteI2CRegister("REF_LSB", refValue);
+    
     // sending register address and value for the msb
     //WriteI2CRegister("REF_MSB", refValue>>8);
-    Wire1.write(regs.RegisterAddress("REF_LSB"));
     regs.setRegister("REF_LSB", (refValue & 0xFF));
-    Wire1.write(regs.RegisterValue("REF_LSB"));
     regs.setRegister("REF_MSB", ((refValue>>8) & 0xFF));
+    WriteI2CRegister("REF_LSB", 2);
+    /*Wire1.write(regs.RegisterAddress("REF_LSB"));
+    
+    Wire1.write(regs.RegisterValue("REF_LSB"));
+    
     Wire1.write(regs.RegisterValue("REF_MSB"));
-    Wire1.endTransmission();
-    Wire1.beginTransmission(TPS55288_Addr);
+    Wire1.endTransmission();*/
+    //Wire1.beginTransmission(TPS55288_Addr);
     // send register address and value for the feedback ratio
     regs.setRegister("VOUT_FS", (regs.RegisterValue("VOUT_FS")&0xFC) | (fbIndex & 0x03 ));
-    Wire1.write(regs.RegisterAddress("VOUT_FS"));
+    WriteI2CRegister("VOUT_FS");
+    /*Wire1.write(regs.RegisterAddress("VOUT_FS"));
     Wire1.write(regs.RegisterValue("VOUT_FS"));
 
     // ending the i2c transmission
-    Wire1.endTransmission();
+    Wire1.endTransmission();*/
   }
 }
 
@@ -191,17 +208,28 @@ void TPS55288::SetCurrentControl()
 }
 
 
-void TPS55288::WriteI2CRegister(std::string regName, uint8_t[] value)
+void TPS55288::WriteI2CRegister(std::string baseRegName, uint8_t count)
 {
   Wire1.beginTransmission(TPS55288_Addr);
-  // a routine for rewriting a whole register with a integer
-  regs.setRegister(regName, (value & 0xFF));
-  uint8_t regIndex = regs.
-  Wire1.write(regs.RegisterAddress(regName));
-  for (uint16_t i = 0; i < count; i++)
+
+  uint8_t regIndex = regs.RegisterIndex(baseRegName);
+
+  Wire1.write(regs.RegisterAddress(baseRegName));
+
+  for (uint8_t i = 0; i < count; i++)
   {
+    regIndex += i;
+    std::string regName = regs.regArray[regIndex].name;
     Wire1.write(regs.RegisterValue(regName));
   }
+  Wire1.endTransmission();
+}
+
+void TPS55288::WriteI2CRegister(std::string regName)
+{
+  Wire1.beginTransmission(TPS55288_Addr);
+  Wire1.write(regs.RegisterAddress(regName));
+  Wire1.write(regs.RegisterValue(regName));
   Wire1.endTransmission();
 }
 
