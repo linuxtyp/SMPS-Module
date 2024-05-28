@@ -39,22 +39,22 @@ public:
     static void setLogLevel(LogLevel level);
 
     // Enable or disable filesystem logging
-    static void enableFileLogging(bool enable);
+    //static void enableFileLogging(bool enable);
 
     // Set the log file retention period (in milliseconds)
-    static void setLogFileRetentionPeriod(unsigned long period);
+    //static void setLogFileRetentionPeriod(unsigned long period);
 
 private:
     static LogLevel currentLogLevel;
     static bool fileLoggingEnabled;
-    static unsigned long logFileRetentionPeriod;
-    static unsigned long lastLogFileTime;
+    //static unsigned long logFileRetentionPeriod;
+    //static unsigned long lastLogFileTime;
 
     // Internal method to log messages based on the log level
     static void log(LogLevel level, const char* format, va_list args);
 
     // Internal method to log messages to the filesystem
-    static void logToFile(const char* message);
+    //static void logToFile(const char* message);
 };
 
 #endif

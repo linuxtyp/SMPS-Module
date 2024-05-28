@@ -27,8 +27,8 @@ TPS55288::TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud){
 
   Debug::begin(LOG_LEVEL_DEBUG);
   // Enable file logging and set log file retention period to 1 minute
-  Debug::enableFileLogging(true);
-  Debug::setLogFileRetentionPeriod(60000);
+  //Debug::enableFileLogging(true);
+  //Debug::setLogFileRetentionPeriod(60000);
 
   // Example log messages
   Debug::info("System is starting up...");
@@ -165,7 +165,7 @@ void TPS55288::SetVoltage(float voltage)
     log("refVoltage: " + std::to_string(refVoltage));
     log("refValue: " + std::to_string(refValue));
     log("fbRatio: " + std::to_string(fbRatios[fbIndex]));
-    log("Outputvoltage: " + std::to_string(refVoltage/fbRatios[fbIndex]));
+    log("Outputvoltage: " + std::to_string((refValue*((maxRefVoltage-minRefVoltage)/1024))/fbRatios[fbIndex]));
     // starting the i2c transmission
     //Wire1.beginTransmission(TPS55288_Addr);
     // sending register address and value for the lsb

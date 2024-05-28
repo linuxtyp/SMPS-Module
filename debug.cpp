@@ -2,9 +2,9 @@
 
 // Initialize static member variables
 LogLevel Debug::currentLogLevel = LOG_LEVEL_INFO;
-bool Debug::fileLoggingEnabled = false;
-unsigned long Debug::logFileRetentionPeriod = 0;
-unsigned long Debug::lastLogFileTime = 0;
+//bool Debug::fileLoggingEnabled = false;
+//nsigned long Debug::logFileRetentionPeriod = 0;
+//unsigned long Debug::lastLogFileTime = 0;
 
 void Debug::begin(LogLevel level, long baudRate) {
     currentLogLevel = level;
@@ -13,22 +13,22 @@ void Debug::begin(LogLevel level, long baudRate) {
         // Wait for the serial port to connect
     }
     // Initialize SPIFFS
-    if (!SPIFFS.begin(true)) {
-        Serial.println("An error has occurred while mounting SPIFFS");
-    }
+    //if (!SPIFFS.begin(true)) {
+    //    Serial.println("An error has occurred while mounting SPIFFS");
+    //}
 }
 
 void Debug::setLogLevel(LogLevel level) {
     currentLogLevel = level;
 }
 
-void Debug::enableFileLogging(bool enable) {
-    fileLoggingEnabled = enable;
-}
-
-void Debug::setLogFileRetentionPeriod(unsigned long period) {
-    logFileRetentionPeriod = period;
-}
+//void Debug::enableFileLogging(bool enable) {
+//    fileLoggingEnabled = enable;
+//}
+//
+//void Debug::setLogFileRetentionPeriod(unsigned long period) {
+//    logFileRetentionPeriod = period;
+//}
 
 void Debug::log(LogLevel level, const char* format, va_list args) {
     if (level <= currentLogLevel) {
@@ -60,13 +60,13 @@ void Debug::log(LogLevel level, const char* format, va_list args) {
         Serial.println(logBuffer);
 
         // Log to file if enabled
-        if (fileLoggingEnabled) {
-            logToFile(logBuffer);
-        }
+        //if (fileLoggingEnabled) {
+        //    logToFile(logBuffer);
+        //}
     }
 }
 
-void Debug::logToFile(const char* message) {
+/*void Debug::logToFile(const char* message) {
     // Append the log message to the file
     File logFile = SPIFFS.open("/log.txt", FILE_APPEND);
     if (!logFile) {
@@ -84,7 +84,7 @@ void Debug::logToFile(const char* message) {
         SPIFFS.rename("/log.txt", oldLogFileName.c_str());
         lastLogFileTime = currentTime;
     }
-}
+}*/
 
 void Debug::error(const char* format, ...) {
     va_list args;

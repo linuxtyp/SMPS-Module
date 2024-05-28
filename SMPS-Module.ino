@@ -1,5 +1,7 @@
 #include <Wire.h>
 #include "TPS55288.h"
+//#include "debug.h"
+
 
 // Definiere die I2C-Pins für den ESP32
 #define I2C_SCL 22
@@ -23,6 +25,18 @@ void setup() {
   // Setze den Spannungsregelmodus
   tps.SetVoltageControl();
   
+  // Initialize the logger
+  //Debug::begin(LOG_LEVEL_DEBUG);
+
+  // Enable file logging and set log file retention period to 1 minute
+  //Debug::enableFileLogging(false);
+  //Debug::setLogFileRetentionPeriod(60000);
+
+  // Example log messages
+  //Debug::info("System is starting up...");
+  //Debug::debug("This is a debug message");
+  //Debug::error("This is an error message");
+
   // Aktiviere den Ausgang
   tps.OutputEnable();
   delay(2000);
