@@ -248,16 +248,12 @@ void TPS55288::log(std::string logString)
 
 void TPS55288::setOutput(bool state)
 {
-  Wire1.beginTransmission(TPS55288_Addr);
-  log("starting transmission");
+  //log("starting transmission");
   regs.setBit("OE",state);
-  Wire1.write(regs.RegisterAddress("MODE"));
-  log("register address sent");
-  Wire1.write(regs.RegisterValue("MODE"));
-  log("register value sent");
-  uint8_t error = Wire1.endTransmission();
-  log(std::to_string(error));
-  std::cerr << "ending transmission" << std::endl;
+  WriteI2CRegister("MODE");
+  //uint8_t error = Wire1.endTransmission();
+  //log(std::to_string(error));
+  //std::cerr << "ending transmission" << std::endl;
   //Serial.println(regs.RegisterAddress("MODE"));
   //Serial.println(regs.RegisterValue("MODE"));
 }
