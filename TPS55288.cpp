@@ -24,6 +24,19 @@ TPS55288::TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud){
   TPS55288::I2C_SDA = I2C_SDA;
   TPS55288::I2C_SCL = I2C_SCL;
   TPS55288::I2C_Baud = I2C_Baud;
+
+  Debug::begin(LOG_LEVEL_DEBUG);
+  // Enable file logging and set log file retention period to 1 minute
+  //Debug::enableFileLogging(true);
+  //Debug::setLogFileRetentionPeriod(60000);
+
+  // Example log messages
+  Debug::info("System is starting up...");
+  Debug::debug("This is a debug message");
+  Debug::error("This is an error message");
+
+
+
   setLog(true);
   log("i2c online");
   //Serial.begin(115200);
@@ -38,8 +51,8 @@ TPS55288::TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud){
   regs.setBit(0,7,true,"VREF7");
 
   regs.setRegisterName(1,"REF_MSB");
-  regs.setBit(1,0,false,"VREF0");
-  regs.setBit(1,1,false,"VREF1");
+  regs.setBit(1,0,false,"VREF8");
+  regs.setBit(1,1,false,"VREF9");
   regs.setBit(1,2,false,"Reserved");
   regs.setBit(1,3,false,"Reserved");
   regs.setBit(1,4,false,"Reserved");
@@ -133,6 +146,7 @@ void TPS55288::SetVoltage(float voltage)
     const float fbRatios[] = {0.2256, 0.1128, 0.0752, 0.0564}; 
     // Maximum reference voltage in V
     const float maxRefVoltage = 1.2;  
+    const float minRefVoltage = 0.045;
 
     float refVoltage;
     uint16_t refValue;
@@ -141,29 +155,42 @@ void TPS55288::SetVoltage(float voltage)
     // Select the appropriate feedback ratio
     for (int i = 0; i < 4; i++) 
     {
-      refVoltage = voltage / fbRatios[i];
+      refVoltage = voltage * fbRatios[i];
       if (refVoltage <= maxRefVoltage) {
           fbIndex = i;
           break;
       }
     }
     // Converting float to uint16_t
-    refValue = static_cast<uint16_t>(refVoltage / fbRatios[fbIndex]);
-
+    refValue = static_cast<uint16_t>(refVoltage/((maxRefVoltage-minRefVoltage)/1024));
+    log("refVoltage: " + std::to_string(refVoltage));
+    log("refValue: " + std::to_string(refValue));
+    log("fbRatio: " + std::to_string(fbRatios[fbIndex]));
+    log("Outputvoltage: " + std::to_string((refValue*((maxRefVoltage-minRefVoltage)/1024))/fbRatios[fbIndex]));
     // starting the i2c transmission
-    Wire1.beginTransmission(TPS55288_Addr);
+    //Wire1.beginTransmission(TPS55288_Addr);
     // sending register address and value for the lsb
-    WriteI2CRegister("REF_LSB", refValue);
+    
     // sending register address and value for the msb
-    WriteI2CRegister("REF_MSB", refValue>>8);
-
+    //WriteI2CRegister("REF_MSB", refValue>>8);
+    regs.setRegister("REF_LSB", (refValue & 0xFF));
+    regs.setRegister("REF_MSB", ((refValue>>8) & 0xFF));
+    WriteI2CRegister("REF_LSB", 2);
+    /*Wire1.write(regs.RegisterAddress("REF_LSB"));
+    
+    Wire1.write(regs.RegisterValue("REF_LSB"));
+    
+    Wire1.write(regs.RegisterValue("REF_MSB"));
+    Wire1.endTransmission();*/
+    //Wire1.beginTransmission(TPS55288_Addr);
     // send register address and value for the feedback ratio
     regs.setRegister("VOUT_FS", (regs.RegisterValue("VOUT_FS")&0xFC) | (fbIndex & 0x03 ));
-    Wire1.write(regs.RegisterAddress("VOUT_FS"));
+    WriteI2CRegister("VOUT_FS");
+    /*Wire1.write(regs.RegisterAddress("VOUT_FS"));
     Wire1.write(regs.RegisterValue("VOUT_FS"));
 
     // ending the i2c transmission
-    Wire1.endTransmission();
+    Wire1.endTransmission();*/
   }
 }
 void TPS55288::SetCurrentLimit(float current){
@@ -198,12 +225,29 @@ void TPS55288::SetCurrentControl()
 }
 
 
-void TPS55288::WriteI2CRegister(std::string regName, uint8_t value)
+void TPS55288::WriteI2CRegister(std::string baseRegName, uint8_t count)
 {
-  // a routine for rewriting a whole register with a integer
-  regs.setRegister(regName, (value & 0xFF));
+  Wire1.beginTransmission(TPS55288_Addr);
+
+  uint8_t regIndex = regs.RegisterIndex(baseRegName);
+
+  Wire1.write(regs.RegisterAddress(baseRegName));
+
+  for (uint8_t i = 0; i < count; i++)
+  {
+    regIndex += i;
+    std::string regName = regs.regArray[regIndex].name;
+    Wire1.write(regs.RegisterValue(regName));
+  }
+  Wire1.endTransmission();
+}
+
+void TPS55288::WriteI2CRegister(std::string regName)
+{
+  Wire1.beginTransmission(TPS55288_Addr);
   Wire1.write(regs.RegisterAddress(regName));
   Wire1.write(regs.RegisterValue(regName));
+  Wire1.endTransmission();
 }
 
 void TPS55288::setLog(bool state)
@@ -238,16 +282,12 @@ void TPS55288::CurrentLimit(bool state){
 }
 void TPS55288::setOutput(bool state)
 {
-  Wire1.beginTransmission(TPS55288_Addr);
-  log("starting transmission");
+  //log("starting transmission");
   regs.setBit("OE",state);
-  Wire1.write(regs.RegisterAddress("MODE"));
-  log("register address sent");
-  Wire1.write(regs.RegisterValue("MODE"));
-  log("register value sent");
-  uint8_t error = Wire1.endTransmission();
-  log(std::to_string(error));
-  std::cerr << "ending transmission" << std::endl;
+  WriteI2CRegister("MODE");
+  //uint8_t error = Wire1.endTransmission();
+  //log(std::to_string(error));
+  //std::cerr << "ending transmission" << std::endl;
   //Serial.println(regs.RegisterAddress("MODE"));
   //Serial.println(regs.RegisterValue("MODE"));
 }

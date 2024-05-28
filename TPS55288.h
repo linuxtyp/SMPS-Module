@@ -12,6 +12,7 @@
 #include <string>
 #include <cstdint>
 #include "Registers.h"
+#include "debug.h"
 //#include "TPS55288.h"
 //#include  <Arduino.h>
 
@@ -54,7 +55,8 @@ class TPS55288
 
   private:
     char ReadCDC();
-    void WriteI2CRegister(std::string regName, uint8_t value);
+    void WriteI2CRegister(std::string regName, uint8_t count);
+    void WriteI2CRegister(std::string regName);
     void log(std::string logString);
 };
 
