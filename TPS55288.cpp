@@ -38,8 +38,8 @@ TPS55288::TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud){
   regs.setBit(0,7,true,"VREF7");
 
   regs.setRegisterName(1,"REF_MSB");
-  regs.setBit(1,0,false,"VREF0");
-  regs.setBit(1,1,false,"VREF1");
+  regs.setBit(1,0,false,"VREF8");
+  regs.setBit(1,1,false,"VREF9");
   regs.setBit(1,2,false,"Reserved");
   regs.setBit(1,3,false,"Reserved");
   regs.setBit(1,4,false,"Reserved");
@@ -132,6 +132,7 @@ void TPS55288::SetVoltage(float voltage)
     const float fbRatios[] = {0.2256, 0.1128, 0.0752, 0.0564}; 
     // Maximum reference voltage in V
     const float maxRefVoltage = 1.2;  
+    const float minRefVoltage = 0.045;
 
     float refVoltage;
     uint16_t refValue;
@@ -140,22 +141,31 @@ void TPS55288::SetVoltage(float voltage)
     // Select the appropriate feedback ratio
     for (int i = 0; i < 4; i++) 
     {
-      refVoltage = voltage / fbRatios[i];
+      refVoltage = voltage * fbRatios[i];
       if (refVoltage <= maxRefVoltage) {
           fbIndex = i;
           break;
       }
     }
     // Converting float to uint16_t
-    refValue = static_cast<uint16_t>(refVoltage / fbRatios[fbIndex]);
-
+    refValue = static_cast<uint16_t>(refVoltage/((maxRefVoltage-minRefVoltage)/1024));
+    log("refVoltage: " + std::to_string(refVoltage));
+    log("refValue: " + std::to_string(refValue));
+    log("fbRatio: " + std::to_string(fbRatios[fbIndex]));
+    log("Outputvoltage: " + std::to_string(refVoltage/fbRatios[fbIndex]));
     // starting the i2c transmission
     Wire1.beginTransmission(TPS55288_Addr);
     // sending register address and value for the lsb
-    WriteI2CRegister("REF_LSB", refValue);
+    //WriteI2CRegister("REF_LSB", refValue);
     // sending register address and value for the msb
-    WriteI2CRegister("REF_MSB", refValue>>8);
-
+    //WriteI2CRegister("REF_MSB", refValue>>8);
+    Wire1.write(regs.RegisterAddress("REF_LSB"));
+    regs.setRegister("REF_LSB", (refValue & 0xFF));
+    Wire1.write(regs.RegisterValue("REF_LSB"));
+    regs.setRegister("REF_MSB", ((refValue>>8) & 0xFF));
+    Wire1.write(regs.RegisterValue("REF_MSB"));
+    Wire1.endTransmission();
+    Wire1.beginTransmission(TPS55288_Addr);
     // send register address and value for the feedback ratio
     regs.setRegister("VOUT_FS", (regs.RegisterValue("VOUT_FS")&0xFC) | (fbIndex & 0x03 ));
     Wire1.write(regs.RegisterAddress("VOUT_FS"));

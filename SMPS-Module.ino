@@ -25,6 +25,9 @@ void setup() {
   
   // Aktiviere den Ausgang
   tps.OutputEnable();
+  delay(2000);
+  tps.OutputDisable();
+  delay(6000);
 }
 
 void loop() {
