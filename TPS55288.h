@@ -32,7 +32,7 @@ class TPS55288
     void CurrentLimitEnable(); //Status Reg, OCP
     void CurrentLimitDisable();
     void ClearCurrentFlag();
-    void SetCurrent(); //for current control
+    void CurrentLimit(bool state); //for current control
     void SetCurrentLimit(float current); //for voltage control
 
     void Info(); //Ues ReadCDC, Status Reg Status Flag
