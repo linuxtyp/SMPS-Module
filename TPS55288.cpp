@@ -15,7 +15,7 @@ Stop Bit: 1
 #include "TPS55288.h"
 
 #define TPS55288_Addr 0x74 //Default if I2CADDR Flag ture-> 0x75
-
+#define SHUNT 0.01 //Ohm
 
 
 
@@ -108,7 +108,8 @@ TPS55288::TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud){
   regs.setBit(7,6,false,"OCP");
   regs.setBit(7,7,false,"SCP");
   Wire1.begin(I2C_SDA, I2C_SCL, I2C_Baud);
-  //OutputDisable();
+  //delay(500);
+  //OutputDisable(); //Bootloop
   log("Initialization successfull");
 }
 void TPS55288::OutputEnable(){
@@ -165,7 +166,23 @@ void TPS55288::SetVoltage(float voltage)
     Wire1.endTransmission();
   }
 }
-
+void TPS55288::SetCurrentLimit(float current){
+  //0A
+  //0.5mV/10mOhm=50mA
+  //1mV/10mOhm100mA
+  //150mA
+  //200mA
+  float voltage = current * SHUNT;
+  // Calculate the register value
+  uint8_t regValue = (uint8_t)(voltage / 0.0005); // 1 bit = 0.5 mV
+  // Ensure the register value does not exceed the maximum allowed value (127)
+  if (regValue > 127) {
+    regValue = 127;
+  }
+  
+  WriteI2CRegister("IOUT_LIMIT",(regs.State("CurrentLimitEN") << 7) | regValue);
+  
+}
 void TPS55288::SetVoltageControl()
 {
   // setting the control mode to voltage control
@@ -201,7 +218,24 @@ void TPS55288::log(std::string logString)
     std::cerr << logString << std::endl;
   }
 }
-
+void TPS55288::CurrentLimitEnable(){
+  CurrentLimit(true);
+}
+void TPS55288::CurrentLimitDisable(){
+  CurrentLimit(false);
+}
+void TPS55288::CurrentLimit(bool state){
+  Wire1.beginTransmission(TPS55288_Addr);
+  log("starting transmission");
+  regs.setBit("CurrentLimitEN",state);
+  Wire1.write(regs.RegisterAddress("IOUT_LIMIT"));
+  log("register address sent");
+  Wire1.write(regs.RegisterValue("IOUT_LIMIT"));
+  log("register value sent");
+  uint8_t error = Wire1.endTransmission();
+  log(std::to_string(error));
+  std::cerr << "ending transmission" << std::endl;
+}
 void TPS55288::setOutput(bool state)
 {
   Wire1.beginTransmission(TPS55288_Addr);
