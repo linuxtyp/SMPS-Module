@@ -8,10 +8,10 @@ LogLevel Debug::currentLogLevel = LOG_LEVEL_INFO;
 
 void Debug::begin(LogLevel level, long baudRate) {
     currentLogLevel = level;
-    Serial.begin(baudRate);
-    while (!Serial) {
-        // Wait for the serial port to connect
-    }
+    //Serial.begin(baudRate);
+    //while (!Serial) {
+    //    // Wait for the serial port to connect
+    //}
     // Initialize SPIFFS
     //if (!SPIFFS.begin(true)) {
     //    Serial.println("An error has occurred while mounting SPIFFS");

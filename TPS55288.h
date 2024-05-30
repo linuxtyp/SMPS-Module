@@ -12,7 +12,7 @@
 #include <string>
 #include <cstdint>
 #include "Registers.h"
-#include "debug.h"
+//#include "debug.h"
 //#include "TPS55288.h"
 //#include  <Arduino.h>
 

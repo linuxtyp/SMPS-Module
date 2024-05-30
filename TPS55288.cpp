@@ -25,15 +25,15 @@ TPS55288::TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud){
   TPS55288::I2C_SCL = I2C_SCL;
   TPS55288::I2C_Baud = I2C_Baud;
 
-  Debug::begin(LOG_LEVEL_DEBUG);
+  //Debug::begin(LOG_LEVEL_DEBUG);
   // Enable file logging and set log file retention period to 1 minute
   //Debug::enableFileLogging(true);
   //Debug::setLogFileRetentionPeriod(60000);
 
   // Example log messages
-  Debug::info("System is starting up...");
-  Debug::debug("This is a debug message");
-  Debug::error("This is an error message");
+  //Debug::info("System is starting up...");
+  //Debug::debug("This is a debug message");
+  //Debug::error("This is an error message");
 
 
 
@@ -192,6 +192,15 @@ void TPS55288::SetVoltage(float voltage)
     // ending the i2c transmission
     Wire1.endTransmission();*/
   }
+}
+void TPS55288::ClearCurrentFlag(){
+  regs.setBit("OCP_MASK",false);
+  Wire1.beginTransmission(TPS55288_Addr);
+  Wire1.write(regs.RegisterAddress("CDC"));
+  Wire1.requestFrom(TPS55288_Addr,1);
+  //byte buffer=Wire1.read();
+  Wire1.endTransmission();
+  WriteI2CRegister("CDC");
 }
 void TPS55288::SetCurrentLimit(float current){
   //0A
