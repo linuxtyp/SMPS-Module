@@ -20,11 +20,11 @@ Stop Bit: 1
 
 
 Registers regs(8);
-TPS55288::TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud){
+TPS55288::TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud, Print &print){
   TPS55288::I2C_SDA = I2C_SDA;
   TPS55288::I2C_SCL = I2C_SCL;
   TPS55288::I2C_Baud = I2C_Baud;
-
+  printer = &print; //operate on the adress of print
   //Debug::begin(LOG_LEVEL_DEBUG);
   // Enable file logging and set log file retention period to 1 minute
   //Debug::enableFileLogging(true);
@@ -126,10 +126,13 @@ TPS55288::TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud){
   log("Initialization successfull");
 }
 void TPS55288::OutputEnable(){
-  setOutput(true);
+  //regs.setBit("OE",true);
+  regs.setRegister("MODE", (regs.RegisterValue("MODE") | 0x80));
+  WriteI2CRegister("MODE");
 }
 void TPS55288::OutputDisable(){
-  setOutput(false);
+  regs.setBit("OE",false);
+  WriteI2CRegister("MODE");
 }
 
 void TPS55288::Info(){
@@ -162,7 +165,8 @@ void TPS55288::SetVoltage(float voltage)
       }
     }
     // Converting float to uint16_t
-    refValue = static_cast<uint16_t>(refVoltage/((maxRefVoltage-minRefVoltage)/1024));
+    //refValue = static_cast<uint16_t>(refVoltage/((maxRefVoltage-minRefVoltage)/1024));
+    refValue = static_cast<uint16_t>(refVoltage/((maxRefVoltage)/1024));
     log("refVoltage: " + std::to_string(refVoltage));
     log("refValue: " + std::to_string(refValue));
     log("fbRatio: " + std::to_string(fbRatios[fbIndex]));
@@ -193,21 +197,40 @@ void TPS55288::SetVoltage(float voltage)
     Wire1.endTransmission();*/
   }
 }
-void TPS55288::ClearCurrentFlag(){
+uint8_t TPS55288::ClearCurrentFlag(){
   regs.setBit("OCP_MASK",false);
   Wire1.beginTransmission(TPS55288_Addr);
   Wire1.write(regs.RegisterAddress("CDC"));
   Wire1.requestFrom(TPS55288_Addr,1);
-  //byte buffer=Wire1.read();
+  uint8_t buffer=Wire1.read();
   Wire1.endTransmission();
   WriteI2CRegister("CDC");
+  return buffer;
+}
+uint8_t TPS55288::ReadStatusReg(){
+  Wire1.beginTransmission(TPS55288_Addr);
+  Wire1.write(regs.RegisterAddress("STATUS"));
+  Wire1.endTransmission(false);
+  Wire1.requestFrom(TPS55288_Addr,1);
+  //Wire1.beginTransmission(TPS55288_Addr);
+  uint8_t buffer=Wire1.read();
+  //Wire1.endTransmission();
+  return buffer;
+  //WriteI2CRegister("CDC");
+}
+uint8_t TPS55288::ReadReg(uint8_t regIndex){
+  Wire1.beginTransmission(TPS55288_Addr);
+  std::string regName = regs.regArray[regIndex].name;
+  Wire1.write(regs.RegisterAddress(regName));
+  Wire1.endTransmission(false);
+  Wire1.requestFrom(TPS55288_Addr,1);
+  //Wire1.beginTransmission(TPS55288_Addr);
+  uint8_t buffer=Wire1.read();
+  //Wire1.endTransmission();
+  return buffer;
+  //WriteI2CRegister("CDC");
 }
 void TPS55288::SetCurrentLimit(float current){
-  //0A
-  //0.5mV/10mOhm=50mA
-  //1mV/10mOhm100mA
-  //150mA
-  //200mA
   float voltage = current * SHUNT;
   // Calculate the register value
   uint8_t regValue = (uint8_t)(voltage / 0.0005); // 1 bit = 0.5 mV
@@ -215,7 +238,7 @@ void TPS55288::SetCurrentLimit(float current){
   if (regValue > 127) {
     regValue = 127;
   }
-  
+  printer->println((regs.State("CurrentLimitEN") << 7) | regValue);
   WriteI2CRegister("IOUT_LIMIT",(regs.State("CurrentLimitEN") << 7) | regValue);
   
 }
@@ -264,11 +287,11 @@ void TPS55288::setLog(bool state)
   logging = state;
 }
 
-void TPS55288::log(std::string logString)
+  void TPS55288::log(std::string logString)
 {
   if (logging)
   {
-    std::cerr << logString << std::endl;
+     printer->println(logString.c_str());
   }
 }
 void TPS55288::CurrentLimitEnable(){
@@ -287,9 +310,9 @@ void TPS55288::CurrentLimit(bool state){
   log("register value sent");
   uint8_t error = Wire1.endTransmission();
   log(std::to_string(error));
-  std::cerr << "ending transmission" << std::endl;
+  //std::cerr << "ending transmission" << std::endl;
 }
-void TPS55288::setOutput(bool state)
+/*void TPS55288::setOutput(bool state)
 {
   //log("starting transmission");
   regs.setBit("OE",state);
@@ -299,4 +322,4 @@ void TPS55288::setOutput(bool state)
   //std::cerr << "ending transmission" << std::endl;
   //Serial.println(regs.RegisterAddress("MODE"));
   //Serial.println(regs.RegisterValue("MODE"));
-}
+}*/

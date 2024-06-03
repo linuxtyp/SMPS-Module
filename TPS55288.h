@@ -12,6 +12,7 @@
 #include <string>
 #include <cstdint>
 #include "Registers.h"
+
 //#include "debug.h"
 //#include "TPS55288.h"
 //#include  <Arduino.h>
@@ -28,14 +29,15 @@ class TPS55288
     bool logging;
 
   public:
-    TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud);
+    TPS55288(int I2C_SDA, int I2C_SCL, int I2C_Baud, Print &print);
     void SetCurrentControl();
     void CurrentLimitEnable(); //Status Reg, OCP
     void CurrentLimitDisable();
-    void ClearCurrentFlag();
+    uint8_t ClearCurrentFlag();
     void CurrentLimit(bool state); //for current control
     void SetCurrentLimit(float current); //for voltage control
-
+    uint8_t ReadStatusReg();
+    uint8_t ReadReg(uint8_t regIndex);
     void Info(); //Ues ReadCDC, Status Reg Status Flag
 
     void OutputEnable(); //Mode Register
@@ -51,13 +53,15 @@ class TPS55288
     void SetVoltageLimit(float voltage); //for current control
     void SetVoltageControl();
     void setLog(bool state);
-    void setOutput(bool state);
+    //void setOutput(bool state);
+    //Registers regs(8);
 
   private:
     char ReadCDC();
     void WriteI2CRegister(std::string regName, uint8_t count);
     void WriteI2CRegister(std::string regName);
     void log(std::string logString);
+    Print* printer;
 };
 
 

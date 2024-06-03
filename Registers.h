@@ -31,6 +31,7 @@ public:
     //void setBiteName(int regIndex, int bitIndex, string name)
     // Function to print the state of all registers
     void printRegisters() const;
+    std::string StatusRegs();
     void setRegister(int regIndex, char value);
     void setRegister(std::string regName, char value);
     void setRegister(int regIndex, char value, std::string name);

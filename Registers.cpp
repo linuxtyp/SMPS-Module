@@ -15,9 +15,9 @@ void Registers::setBit(int regIndex, int bitIndex, bool state) {
     if (regIndex >= 0 && regIndex < 8 && bitIndex >= 0 && bitIndex < 8) {
         regArray[regIndex].bits[bitIndex].state = state;
         updateRegisterValue(regIndex);
-        std::cerr << "bit set. regIndex: " << regIndex << " bitIndex: " << bitIndex << std::endl;
+        //std::cerr << "bit set. regIndex: " << regIndex << " bitIndex: " << bitIndex << std::endl;
     } else {
-        std::cerr << "Invalid register index or bit index. regIndex: " << regIndex << " bitIndex: " << bitIndex << std::endl;
+        //std::cerr << "Invalid register index or bit index. regIndex: " << regIndex << " bitIndex: " << bitIndex << std::endl;
     }
 }
 bool Registers::State(std::string name) {
@@ -25,68 +25,69 @@ bool Registers::State(std::string name) {
         for (int i = 0; i < 8; ++i) {
             if (regArray[j].bits[i].name == name) {
                 return regArray[j].bits[i].state;
-                std::cerr << "valid register name" << name << std::endl; //debug
+                //std::cerr << "valid register name" << name << std::endl; //debug
             }
         }
     }
-    std::cerr << "Invalid register name: " << name << " -> State" << std::endl;
+    //std::cerr << "Invalid register name: " << name << " -> State" << std::endl;
     return -1;
 }
 uint8_t Registers::RegisterValue(std::string name) {
     for (int i = 0; i < 8; ++i) {
         if (regArray[i].name == name) {
             return regArray[i].value;
-            std::cerr << "valid register name: " << name << std::endl; //debug
+            //std::cerr << "valid register name: " << name << std::endl; //debug
         }
     }   
-    std::cerr << "Invalid register name: " << name << " -> RegisterValue" << std::endl;
+    //std::cerr << "Invalid register name: " << name << " -> RegisterValue" << std::endl;
     return -1;
 }
 uint8_t Registers::RegisterAddress(std::string regName) {
     for (int i = 0; i < 8; ++i) {
         if (regArray[i].name == regName) {
-            std::cerr << "valid register name: " << regName << std::endl; //debug
+            //std::cerr << "valid register name: " << regName << std::endl; //debug
             return i;
         }
     }
-    std::cerr << "Invalid register name: " << regName << " -> RegisterAddress" << std::endl;
+    //std::cerr << "Invalid register name: " << regName << " -> RegisterAddress" << std::endl;
     return -1;
 }
 // Function to find the index of a register with its name
 uint8_t Registers::RegisterIndex(std::string regName) {
     for (int i = 0; i < 8; ++i) {
         if (regArray[i].name == regName) {
-            std::cerr << "valid register name: " << regName << std::endl; //debug
+            //std::cerr << "valid register name: " << regName << std::endl; //debug
             return i; // Return the index if the register name matches
         }
     }
-    std::cerr << "Invalid register name: " << regName << " -> RegisterAddress" << std::endl;
+    //std::cerr << "Invalid register name: " << regName << " -> RegisterAddress" << std::endl;
     return -1; // Return -1 if the register name is not found
 }
 void Registers::setBit(std::string bitName, bool state) {
     for (int i = 0; i < 8; ++i) {
-        //std::cout << "The number j is: " << j << std::endl;
+        ////std::cout << "The number j is: " << j << std::endl;
         for (int j = 0; j < 8; ++j) {
-            //std::cout << "The number i is: " << i << std::endl;
+            ////std::cout << "The number i is: " << i << std::endl;
             if (regArray[i].bits[j].name == bitName) {
                 regArray[i].bits[j].state = state;
                 updateRegisterValue(j);
-                std::cerr << "bit set: " << bitName << std::endl; // debug
+                //std::cerr << "bit set: " << bitName << std::endl; // debug
                 return;
             }
         }
     }
-    std::cerr << "invalid bitname: " << bitName << std::endl; //debug
+    //std::cerr << "invalid bitname: " << bitName << std::endl; //debug
 }
+
 void Registers::setRegister(int regIndex, char value) {
     if (regIndex >= 0 && regIndex < 8) {
         regArray[regIndex].value = value;
         for (int i = 0; i < 8; ++i) {
             regArray[regIndex].bits[i].state = (value >> i) & 1;
         }
-        std::cerr << "Register set: " << regIndex << std::endl; //debug
+        //std::cerr << "Register set: " << regIndex << std::endl; //debug
     } else {
-        std::cerr << "Invalid register index: " << regIndex << std::endl;
+        //std::cerr << "Invalid register index: " << regIndex << std::endl;
     }
 }
 
@@ -98,11 +99,11 @@ void Registers::setRegister(std::string regName, char value)
             for (int j = 0; j < 8; ++j) {
                 regArray[i].bits[j].state = (value >> j) & 1;
             }
-            std::cerr << "Register set: " << regName << std::endl; //debug
+            //std::cerr << "Register set: " << regName << std::endl; //debug
             return;
         }
     }
-    std::cerr << "Invalid register name: " << regName << " -> setRegister" << std::endl;  /* code */
+    //std::cerr << "Invalid register name: " << regName << " -> setRegister" << std::endl;  /* code */
 }
 
 void Registers::setRegister(int regIndex, char  value, std::string name) {
@@ -112,18 +113,18 @@ void Registers::setRegister(int regIndex, char  value, std::string name) {
         for (int i = 0; i < 8; ++i) {
             regArray[regIndex].bits[i].state = (value >> i) & 1;
         }
-        std::cerr << "Register set: " << regIndex << std::endl; //debug
+        //std::cerr << "Register set: " << regIndex << std::endl; //debug
     } else {
-        std::cerr << "Invalid register index: " << regIndex << std::endl;
+        //std::cerr << "Invalid register index: " << regIndex << std::endl;
     }
 }
 
 void Registers::setRegisterName(int regIndex, std::string name) {
     if (regIndex >= 0 && regIndex < 8) {
         regArray[regIndex].name = name;
-        std::cerr << "Register Name set: " << regIndex << std::endl; //debug
+        //std::cerr << "Register Name set: " << regIndex << std::endl; //debug
     } else {
-        std::cerr << "Invalid register index: " << regIndex << std::endl;
+        //std::cerr << "Invalid register index: " << regIndex << std::endl;
     }
 }
 
@@ -132,22 +133,34 @@ void Registers::setBit(int regIndex, int bitIndex, bool state, std::string name)
         regArray[regIndex].bits[bitIndex].state = state;
         regArray[regIndex].bits[bitIndex].name = name;
         updateRegisterValue(regIndex);
-        std::cerr << "bit set. regIndex: " << regIndex << " bitIndex: " << bitIndex << std::endl;
+        //std::cerr << "bit set. regIndex: " << regIndex << " bitIndex: " << bitIndex << std::endl;
     } else {
-        std::cerr << "Invalid register index or bit index. regIndex: " << regIndex << " bitIndex: " << bitIndex << std::endl;
+        //std::cerr << "Invalid register index or bit index. regIndex: " << regIndex << " bitIndex: " << bitIndex << std::endl;
     }
 }
 
 void Registers::printRegisters() const {
     for (int i = 0; i < 8; ++i) {
-        std::cout << "Register " << i << " Name: " << regArray[i].name << std::endl;
-        std::cout << "Register " << i << " Value: 0x" << std::hex << static_cast<int>(regArray[i].value) << std::endl;
-        std::cout << "Bits:" << std::endl;
+        //std::cout << "Register " << i << " Name: " << regArray[i].name << std::endl;
+        //std::cout << "Register " << i << " Value: 0x" << std::hex << static_cast<int>(regArray[i].value) << std::endl;
+        //std::cout << "Bits:" << std::endl;
         for (int j = 0; j < 8; ++j) {
-            std::cout << "  Bit " << j << " Name: " << regArray[i].bits[j].name << ", State: " << regArray[i].bits[j].state << std::endl;
+            //std::cout << "  Bit " << j << " Name: " << regArray[i].bits[j].name << ", State: " << regArray[i].bits[j].state << std::endl;
         }
-        std::cout << std::endl;
+        //std::cout << std::endl;
     }
+}
+std::string Registers::StatusRegs() {
+    std::string result;
+    for (int i = 0; i < 8; ++i) {
+        result += "Register " + std::to_string(i) + " Name: " + regArray[i].name + "\n";
+        result += "Register " + std::to_string(i) + " Value: 0x" + std::to_string(static_cast<int>(regArray[i].value)) + "\n";
+        result += "Bits:\n";
+        for (int j = 0; j < 8; ++j) {
+            result += "  Bit " + std::to_string(j) + " Name: " + regArray[i].bits[j].name + ", State: " + std::to_string(regArray[i].bits[j].state) + "\n";
+        }
+    }
+    return result;
 }
 void Registers::updateRegisterValue(int regIndex) {
     uint8_t newValue = 0;
