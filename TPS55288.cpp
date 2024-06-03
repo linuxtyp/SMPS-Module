@@ -238,8 +238,10 @@ void TPS55288::SetCurrentLimit(float current){
   if (regValue > 127) {
     regValue = 127;
   }
+  printer->print("Limit: ");
   printer->println((regs.State("CurrentLimitEN") << 7) | regValue);
-  WriteI2CRegister("IOUT_LIMIT",(regs.State("CurrentLimitEN") << 7) | regValue);
+  regs.setRegister("IOUT_LIMIT",(regs.State("CurrentLimitEN") << 7) | regValue);
+  WriteI2CRegister("IOUT_LIMIT");
   
 }
 void TPS55288::SetVoltageControl()

@@ -118,20 +118,20 @@ void loop() {
   
   //rgbled.setPixelColor(1, (255,255,255));
   //rgbled.show();
-  //tps.SetCurrentLimit(3.5);
+  tps.SetCurrentLimit(2.0);
   //Serial.println("Current Limit Set.");
-  //tps.CurrentLimitEnable();
+  tps.CurrentLimitEnable();
   //Serial.println("Current Limit Enabled");
   // Prompt the user to input the voltage
+  Serial.println(readCurrent());
   delay(1000);
   Serial.println("Enter the desired voltage (in volts): ");
-  Serial.println(readCurrent());
   start:
   while (!Serial.available()) {
   }
   // Read the voltage input from the user
   userVoltage = Serial.parseFloat();
-  userVoltage = 5;
+  //userVoltage = 5;
   if (userVoltage == 0)
   {
     goto start;
@@ -165,14 +165,14 @@ float readCurrent() {
   analogReadResolution(12);
   analogSetAttenuation(ADC_11db);
   float adcValue = analogRead(ADC_PIN);
-  Serial.print("ADC: ");
-  Serial.println(adcValue);
+  //Serial.print("ADC: ");
+  //Serial.println(adcValue);
   // Convert the ADC value to a voltage
   // ESP32 has a 3.3V reference voltage
   //float voltage = ((2.5/4096)*adcValue)/50.0;
   float voltage = (adcValue * 1.947 / 4096)/50;
-  Serial.print("Voltage: ");
-  Serial.println(voltage);
+  //Serial.print("Voltage: ");
+  //Serial.println(voltage);
   // Calculate the current
   // The voltage is amplified by 50, so we need to divide by 50
   // The shunt resistor is 10 mOhm (0.01 Ohm)
